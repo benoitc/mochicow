@@ -10,4 +10,4 @@ doc/*.css
 doc/erlang.png
 doc/edoc-info
 t/*.beam
-example/*.beam
+examples/*.beam
