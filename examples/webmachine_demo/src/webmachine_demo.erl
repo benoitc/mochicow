@@ -21,7 +21,8 @@ start_link() ->
     ensure_started(inets),
     ensure_started(crypto),
     ensure_started(mochiweb),
-    application:set_env(webmachine, webmachine_logger_module, 
+    ensure_started(cowboy),
+    application:set_env(webmachine, webmachine_logger_module,
                         webmachine_logger),
     ensure_started(webmachine),
     webmachine_demo_sup:start_link().
@@ -32,7 +33,8 @@ start() ->
     ensure_started(inets),
     ensure_started(crypto),
     ensure_started(mochiweb),
-    application:set_env(webmachine, webmachine_logger_module, 
+    ensure_started(cowboy),
+    application:set_env(webmachine, webmachine_logger_module,
                         webmachine_logger),
     ensure_started(webmachine),
     application:start(webmachine_demo).
@@ -43,6 +45,7 @@ stop() ->
     Res = application:stop(webmachine_demo),
     application:stop(webmachine),
     application:stop(mochiweb),
+    application:stop(cowboy),
     application:stop(crypto),
     application:stop(inets),
     Res.

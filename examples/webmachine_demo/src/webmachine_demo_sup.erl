@@ -41,17 +41,31 @@ upgrade() ->
 %% @spec init([]) -> SupervisorTree
 %% @doc supervisor callback.
 init([]) ->
-    Ip = case os:getenv("WEBMACHINE_IP") of false -> "0.0.0.0"; Any -> Any end,
+    Ip0 = case os:getenv("WEBMACHINE_IP") of
+        false -> "0.0.0.0";
+        Any -> Any
+    end,
+
+    ParsedIp = case Ip0 of
+        any ->
+            any;
+        Ip when is_tuple(Ip) ->
+            Ip;
+        Ip when is_list(Ip) ->
+            {ok, IpTuple} = inet_parse:address(Ip),
+            IpTuple
+    end,
+
     {ok, App} = application:get_application(?MODULE),
     {ok, Dispatch} = file:consult(filename:join([code:priv_dir(App),
                                                  "dispatch.conf"])),
     WebConfig = [
-                 {ip, Ip},
+                 {ip, ParsedIp},
                  {port, 8000},
                  {log_dir, "priv/log"},
                  {dispatch, Dispatch}],
-    Web = {webmachine_mochiweb,
-           {webmachine_mochiweb, start, [WebConfig]},
-           permanent, 5000, worker, [mochiweb_socket_server]},
+    Web = {webmachine_mochicow,
+           {webmachine_mochicow, start, [WebConfig]},
+           permanent, 5000, worker, [webmachine_mochicow]},
     Processes = [Web],
     {ok, { {one_for_one, 10, 10}, Processes} }.
