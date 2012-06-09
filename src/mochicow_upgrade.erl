@@ -23,7 +23,6 @@ upgrade(_ListenerPid, _Handler, Opts, Req) ->
               port=Port} = Req,
 
     MochiSocket = mochiweb_socket(Transport, Socket),
-    MochiHeaders = mochiweb_headers:make(Headers),
     DefaultPort = default_port(Transport:name()),
     MochiHost = case Port of
         DefaultPort ->
@@ -32,8 +31,16 @@ upgrade(_ListenerPid, _Handler, Opts, Req) ->
             %% fix raw host
             binary_to_list(Host) ++ ":" ++ integer_to_list(Port)
     end,
-    MochiHeaders1 = mochiweb_headers:enter('Host', MochiHost,
-                MochiHeaders),
+
+    MochiHeaders = lists:foldl(fun
+                ({'Host'=K, _V}, T) ->
+                    mochiweb_headers:insert(K, MochiHost, T);
+                ({K, V}, T) when is_binary(K) ->
+                    mochiweb_headers:insert(binary_to_list(K),
+                                         binary_to_list(V), T);
+                ({K, V}, T) ->
+                    mochiweb_headers:insert(K, binary_to_list(V), T)
+            end, mochiweb_headers:empty(), Headers),
 
     %% fix raw path
     Path1 = case Path of
@@ -48,11 +55,12 @@ upgrade(_ListenerPid, _Handler, Opts, Req) ->
         _ ->
             << Path1/binary, "?", QS/binary >>
     end,
+    io:format("pqth ~p~n", [RawPath]),
     MochiReq = mochiweb_request:new(MochiSocket,
                                     Method,
                                     binary_to_list(RawPath),
                                     Version,
-                                    MochiHeaders1),
+                                    MochiHeaders),
     call_body(HttpLoop, MochiReq),
     after_response(Req, MochiReq).
 
