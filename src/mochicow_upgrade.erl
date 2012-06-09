@@ -55,7 +55,6 @@ upgrade(_ListenerPid, _Handler, Opts, Req) ->
         _ ->
             << Path1/binary, "?", QS/binary >>
     end,
-    io:format("pqth ~p~n", [RawPath]),
     MochiReq = mochiweb_request:new(MochiSocket,
                                     Method,
                                     binary_to_list(RawPath),
