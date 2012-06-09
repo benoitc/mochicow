@@ -3,7 +3,8 @@
 -export([upgrade/4]).
 
 -include_lib("cowboy/include/http.hrl").
--include("mochicow.hrl"upgrade(_ListenerPid, _Handler, Opts, Req) ->
+
+upgrade(_ListenerPid, _Handler, Opts, Req) ->
     {loop, HttpLoop} = proplists:lookup(loop, Opts),
     #http_req{socket=Socket,
               transport=Transport,
@@ -13,8 +14,7 @@
               raw_qs=QS,
               headers=Headers,
               raw_host=Host,
-              port=Port,
-              buffer=Buffer} = Req,
+              port=Port} = Req,
 
     MochiSocket = mochiweb_socket(Transport, Socket),
     MochiHeaders = mochiweb_headers:make(Headers),
@@ -47,12 +47,6 @@
                                     binary_to_list(RawPath),
                                     Version,
                                     MochiHeaders1),
-    case Buffer of
-        <<>> -> ok;
-        _ ->
-            %%gen_tcp:unrecv(Socket, Buffer)
-            erlang:put(mochiweb_request_body, Buffer)
-    end,
     call_body(HttpLoop, MochiReq),
     after_response(Req, MochiReq).
 

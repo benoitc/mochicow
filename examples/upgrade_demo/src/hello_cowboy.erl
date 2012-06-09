@@ -14,7 +14,7 @@ start() ->
 
     cowboy:start_listener(http, 100,
                           cowboy_tcp_transport, [{port, 8080}],
-                          cowboy_http_protocol, [{dispatch, Dispatch}]).
+                          mochicow_http_protocol, [{dispatch, Dispatch}]).
 
 stop() ->
     application:stop(cowboy).
