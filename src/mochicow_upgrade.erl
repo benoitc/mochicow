@@ -82,9 +82,14 @@ after_response(Req, MochiReq) ->
                         body_state = done,
                         buffer = <<>> },
 
-    MochiReq:cleanup(),
-    erlang:garbage_collect(),
-    {ok, Req2}.
+    case MochiReq:should_close() of
+        true ->
+            {ok, Req2#http_req{connection=close}};
+        false ->
+            MochiReq:cleanup(),
+            erlang:garbage_collect(),
+            {ok, Req2}
+    end.
 
 list_to_connection(Connection) when is_binary(Connection) ->
     list_to_connection(binary_to_list(Connection));

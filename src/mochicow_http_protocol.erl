@@ -79,8 +79,7 @@ wait_request(#state{transport=Transport, socket=Socket,
                when Version =/= {1, 0}, Version =/= {1, 1} ->
             error_terminate(505, State);
 
-        {Protocol, _, {http_request, Method, '*', Version}}
-               when Protocol == http orelse Protocol == ssl ->
+        {_Protocol, _, {http_request, Method, '*', Version}} ->
             #state{socket=Socket,
                    transport=Transport,
                    req_keepalive=Keepalive,
@@ -101,8 +100,7 @@ wait_request(#state{transport=Transport, socket=Socket,
                                    raw_qs= <<>>, onresponse=OnResponse,
                                    urldecode=URLDec}, State);
 
-        {Protocol, _, {http_request, Method, Uri, Version}}
-               when Protocol == http orelse Protocol == ssl ->
+        {_Protocol, _, {http_request, Method, Uri, Version}} ->
 
             #state{socket=Socket,
                    transport=Transport,
@@ -132,11 +130,9 @@ wait_request(#state{transport=Transport, socket=Socket,
                                    path=Path, raw_path=RawPath, raw_qs=Qs,
                                    onresponse=OnResponse, urldecode=URLDec},
                          State);
-        {Protocol, _, {http_error, <<"\r\n">>}}
-                when Protocol == http orelse Protocol == ssl ->
+        {_Protocol, _, {http_error, <<"\r\n">>}} ->
             wait_request(State#state{req_empty_lines=N + 1});
-        {Protocol, _, {http_error, <<"\n">>}}
-                when Protocol == http orelse Protocol == ssl ->
+        {_Protocol, _, {http_error, <<"\n">>}} ->
             wait_request(State#state{req_empty_lines=N + 1});
         {tcp_closed, _} ->
             terminate(State);
