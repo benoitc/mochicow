@@ -46,12 +46,11 @@ Ex:
 
 You can use mochicow to quietly migrate your code from mochiweb to
 cowboy or use both ath the sametime. To do that you will need to use the
-module `mochicow_http_protocol` as the protocol. This modules works
-exactly like the cowboy procol except that it doesn't use a buffer to
-parse the request. Then you can set an handler and upgrade it. This
-special handler will have the `loop` property to use a mochiweb loop.
+upgrqde the protocol using `mochicow_upgrade` as the protocol. This
+handler that you upgrade need to have the `loop` property to use
+a mochiweb loop.
 
-### Ex to start the mochicow_http_protocol:
+### Ex to start the cowboy_http_protocol:
 
     -module(hello_cowboy).
     -export([start/0, stop/0]).
@@ -69,7 +68,7 @@ special handler will have the `loop` property to use a mochiweb loop.
 
         cowboy:start_listener(http, 100,
                               cowboy_tcp_transport, [{port, 8080}],
-                              mochicow_http_protocol, [{dispatch, Dispatch}]).
+                              cowboy_http_protocol, [{dispatch, Dispatch}]).
 
     stop() ->
         application:stop(cowboy).

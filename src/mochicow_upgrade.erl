@@ -14,6 +14,7 @@ upgrade(_ListenerPid, _Handler, Opts, Req) ->
     {loop, HttpLoop} = proplists:lookup(loop, Opts),
     #http_req{socket=Socket,
               transport=Transport,
+              buffer=Buffer,
               method=Method,
               version=Version,
               raw_path=Path,
@@ -55,11 +56,12 @@ upgrade(_ListenerPid, _Handler, Opts, Req) ->
         _ ->
             << Path1/binary, "?", QS/binary >>
     end,
-    MochiReq = mochiweb_request:new(MochiSocket,
+    MochiReq = mochicow_request:new(MochiSocket,
                                     Method,
                                     binary_to_list(RawPath),
                                     Version,
-                                    MochiHeaders),
+                                    MochiHeaders,
+                                    Buffer),
     call_body(HttpLoop, MochiReq),
     after_response(Req, MochiReq).
 
@@ -77,10 +79,11 @@ call_body(Body, Req) ->
 
 after_response(Req, MochiReq) ->
     Connection =MochiReq:get_header_value("connection"),
+
     Req2 = Req#http_req{connection = list_to_connection(Connection),
                         resp_state = done,
                         body_state = done,
-                        buffer = <<>> },
+                        buffer = MochiReq:get(buffer) },
 
     case MochiReq:should_close() of
         true ->
