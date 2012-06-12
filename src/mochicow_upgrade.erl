@@ -65,7 +65,7 @@ upgrade(_ListenerPid, _Handler, Opts, Req) ->
     call_body(HttpLoop, MochiReq),
     after_response(Req, MochiReq).
 
-mochiweb_socket(cowboy_transport_ssl, Socket) ->
+mochiweb_socket(cowboy_ssl_transport, Socket) ->
     {ssl, Socket};
 mochiweb_socket(_Transport, Socket) ->
     Socket.
