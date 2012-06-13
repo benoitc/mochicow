@@ -78,20 +78,17 @@ call_body(Body, Req) ->
     Body(Req).
 
 after_response(Req, MochiReq) ->
-    Connection =MochiReq:get_header_value("connection"),
-
-    Req2 = Req#http_req{connection = list_to_connection(Connection),
-                        resp_state = done,
+    Req2 = Req#http_req{resp_state = done,
                         body_state = done,
                         buffer = MochiReq:get(buffer) },
 
     case MochiReq:should_close() of
         true ->
             {ok, Req2#http_req{connection=close}};
-        false ->
+        _ ->
             MochiReq:cleanup(),
             erlang:garbage_collect(),
-            {ok, Req2}
+            {ok, Req2#http_req{connection=keepalive}}
     end.
 
 list_to_connection(Connection) when is_binary(Connection) ->
