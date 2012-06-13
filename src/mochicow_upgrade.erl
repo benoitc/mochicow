@@ -91,15 +91,6 @@ after_response(Req, MochiReq) ->
             {ok, Req2#http_req{connection=keepalive}}
     end.
 
-list_to_connection(Connection) when is_binary(Connection) ->
-    list_to_connection(binary_to_list(Connection));
-list_to_connection(Connection) when is_atom(Connection) ->
-    Connection;
-list_to_connection("keep-alive") ->
-    keepalive;
-list_to_connection(_) ->
-    close.
-
 -spec default_port(atom()) -> 80 | 443.
 default_port(ssl) -> 443;
 default_port(_) -> 80.
