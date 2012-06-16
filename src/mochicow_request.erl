@@ -173,6 +173,7 @@ recv(Length, Timeout) ->
         undefined ->
             InitialBuffer;
         Buf ->
+            put(?SAVE_RECV, true),
             Buf
     end,
 
@@ -182,6 +183,7 @@ recv(Length, Timeout) ->
             put(?SAVE_RECV, true),
             Data;
         {more, _} ->
+            put(?SAVE_RECV, true),
             {ok, NewBuf} = raw_recv(Timeout),
 
             FinalBuffer = iolist_to_binary([Buffer, NewBuf]),
@@ -219,7 +221,6 @@ raw_recv(Timeout) ->
     mochiweb_socket:setopts(Socket, [{packet, raw}]),
     case mochiweb_socket:recv(Socket, 0, Timeout) of
         {ok, Data} ->
-            put(?SAVE_RECV, true),
             {ok, Data};
         _ ->
             exit(normal)
