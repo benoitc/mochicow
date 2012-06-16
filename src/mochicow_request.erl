@@ -179,6 +179,7 @@ recv(Length, Timeout) ->
     case get_data(Packet, PacketSize, Length, Buffer) of
         {ok, Data, Rest} ->
             put(?SAVE_BUFFER, Rest),
+            put(?SAVE_RECV, true),
             Data;
         {more, _} ->
             {ok, NewBuf} = raw_recv(Timeout),
