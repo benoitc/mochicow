@@ -62,8 +62,13 @@ upgrade(_ListenerPid, _Handler, Opts, Req) ->
                                     Version,
                                     MochiHeaders,
                                     Buffer),
-    call_body(HttpLoop, MochiReq),
-    after_response(Req, MochiReq).
+
+    case catch call_body(HttpLoop, MochiReq) of
+        {'EXIT', _Reason} ->
+            closed;
+        _ ->
+            after_response(Req, MochiReq)
+    end.
 
 mochiweb_socket(cowboy_ssl_transport, Socket) ->
     {ssl, Socket};
