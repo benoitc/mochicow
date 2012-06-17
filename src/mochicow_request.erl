@@ -218,10 +218,15 @@ get_data(Packet, PacketSize, _Length, Buf) ->
     end.
 
 raw_recv(Timeout) ->
+    raw_recv(Timeout, 0).
+
+raw_recv(Timeout, Tries) ->
     mochiweb_socket:setopts(Socket, [{packet, raw}]),
     case mochiweb_socket:recv(Socket, 0, Timeout) of
         {ok, Data} ->
             {ok, Data};
+        {error, eagain} when Tries < 3 ->
+            raw_recv(Timeout, Tries+1);
         _ ->
             exit(normal)
     end.
