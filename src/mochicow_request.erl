@@ -573,17 +573,13 @@ stream_unchunked_body(Length, Fun, FunState) when Length > 0 ->
 %% @doc Read the length of the next HTTP chunk.
 read_chunk_length() ->
     ok = mochiweb_socket:setopts(Socket, [{packet, line}]),
-    case recv(0, ?IDLE_TIMEOUT) of
-        {ok, Header} ->
-            ok = mochiweb_socket:setopts(Socket, [{packet, raw}]),
-            Splitter = fun (C) ->
-                               C =/= $\r andalso C =/= $\n andalso C =/= $
-                       end,
-            {Hex, _Rest} = lists:splitwith(Splitter, binary_to_list(Header)),
-            mochihex:to_int(Hex);
-        _ ->
-            exit(normal)
-    end.
+    Header = recv(0, ?IDLE_TIMEOUT),
+    ok = mochiweb_socket:setopts(Socket, [{packet, raw}]),
+    Splitter = fun (C) ->
+                       C =/= $\r andalso C =/= $\n andalso C =/= $
+               end,
+    {Hex, _Rest} = lists:splitwith(Splitter, binary_to_list(Header)),
+    mochihex:to_int(Hex).
 
 %% @spec read_chunk(integer()) -> Chunk::binary() | [Footer::binary()]
 %% @doc Read in a HTTP chunk of the given length. If Length is 0, then read the
@@ -592,12 +588,10 @@ read_chunk(0) ->
     ok = mochiweb_socket:setopts(Socket, [{packet, line}]),
     F = fun (F1, Acc) ->
                 case recv(0, ?IDLE_TIMEOUT) of
-                    {ok, <<"\r\n">>} ->
+                    <<"\r\n">> ->
                         Acc;
-                    {ok, Footer} ->
-                        F1(F1, [Footer | Acc]);
-                    _ ->
-                        exit(normal)
+                    Footer ->
+                        F1(F1, [Footer | Acc])
                 end
         end,
     Footers = F(F, []),
@@ -606,7 +600,7 @@ read_chunk(0) ->
     Footers;
 read_chunk(Length) ->
     case recv(2 + Length, ?IDLE_TIMEOUT) of
-        {ok, <<Chunk:Length/binary, "\r\n">>} ->
+        <<Chunk:Length/binary, "\r\n">> ->
             Chunk;
         _ ->
             exit(normal)
