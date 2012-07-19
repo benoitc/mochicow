@@ -27,7 +27,7 @@ upgrade(_ListenerPid, _Handler, Opts, Req) ->
     DefaultPort = default_port(Transport:name()),
     MochiHost = case Port of
         DefaultPort ->
-            Port;
+            binary_to_list(Host);
         _ ->
             %% fix raw host
             binary_to_list(Host) ++ ":" ++ integer_to_list(Port)
