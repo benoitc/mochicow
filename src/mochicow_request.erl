@@ -233,7 +233,7 @@ raw_recv(Timeout, Tries) ->
 
 getopts(Opts) ->
     case Socket of
-        {ssl, Socket} ->
+        {ssl, _Socket} ->
             ssl:getopts(Socket, Opts);
         _ ->
             inet:getopts(Socket, Opts)
