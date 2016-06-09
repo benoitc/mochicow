@@ -4,17 +4,19 @@
 -define(LOOP, {mochi_handler, loop}).
 
 start() ->
-    Dispatch = [
-        %% {Host, list({Path, Handler, Opts})}
-            {'_', [{[<<"mochi">>,'_'], mochi_handler, [{loop, ?LOOP}]},
-                   {'_', cowboy_handler, []}]}
-    ],
-    application:start(cowboy),
-    application:start(cowboy_revproxy),
+    {ok, _} = application:ensure_all_started(cowboy),
+     Dispatch = cowboy_router:compile([
 
-    cowboy:start_listener(http, 100,
-                          cowboy_tcp_transport, [{port, 8080}],
-                          cowboy_http_protocol, [{dispatch, Dispatch}]).
+        {'_', [{"/", cowboy_hello_handler, []},
+         	   {"/echo", mochi_echo_handler, [{loop, {mochi_echo_handler, loop}}]},
+        	   {"/keepalive/[...]", mochi_keepalive_handler, [{loop, {mochi_keepalive_handler, loop}}]},
+
+        	   {'_', mochi_hello_handler, [{loop, {mochi_hello_handler, loop}}]}
+        	   ]}
+    ]),
+
+    cowboy:start_http(http, 100,  [{port, 8080}], 
+                      [{env, [{dispatch, Dispatch}]} ]).
 
 stop() ->
     application:stop(cowboy).

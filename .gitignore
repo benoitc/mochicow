@@ -15,3 +15,5 @@ examples/webmachine_demo/deps
 examples/webmachine_demo/ebin
 examples/upgrade_demo/deps
 examples/upgrade_demo/ebin
+_build
+*.beam

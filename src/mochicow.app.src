@@ -10,6 +10,6 @@
   {vsn, "0.4.3"},
   {modules, []},
   {registered, []},
-  {applications, [kernel, stdlib]}
+  {applications, [kernel, stdlib, ranch, cowlib, cowboy, mochiweb]}
 ]}.
 

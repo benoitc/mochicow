@@ -1,10 +1,10 @@
--module(mochi_handler).
+-module(mochi_hello_handler).
 
 
 -export([init/3, loop/1]).
 
 
-init({tcp, http}, _Req, _Opts) ->
+init(_, _, _) ->
     {upgrade, protocol, mochicow_upgrade}.
 
 loop(Req) ->

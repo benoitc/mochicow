@@ -5,13 +5,13 @@
 
 
 start() ->
-    application:start(cowboy),
-    cowboy:start_listener(http, 100,
-                          cowboy_tcp_transport, [{port, 8000}],
+    {ok, _} = application:ensure_all_started(ranch),
+    ranch:start_listener(http, 100,
+                          ranch_tcp, [{port, 8000}],
                           mochicow_protocol, [{loop, ?LOOP}]).
 
 stop() ->
-	application:stop(cowboy).
+	application:stop(ranch).
 
 
 loop(Req) ->
