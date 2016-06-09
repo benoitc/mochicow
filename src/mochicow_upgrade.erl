@@ -50,7 +50,7 @@ upgrade(Req, Env, _Handler, Opts) ->
 
     put(mochicow_buffer, Buffer),
 
-    MochiReq = mochiweb_request:new(MochiSocket,
+    MochiReq = mochicow_request:new(MochiSocket,
                                     [{ranch_ref, Ref}| Opts],
                                     to_atom(Method),
                                     raw_path(Path, Qs),
