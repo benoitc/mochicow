@@ -7,7 +7,7 @@
 
 {application, mochicow,
  [{description, "mochiweb adapter for cowboy"},
-  {vsn, "0.5.1"},
+  {vsn, "0.5.2"},
   {modules, []},
   {registered, []},
   {applications, [kernel, stdlib, ranch, cowlib, cowboy, mochiweb]}

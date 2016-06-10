@@ -75,7 +75,7 @@ recv(Socket, Length, Timeout) ->
                     end
             end;
         undefined -> 
-            mochiweb_socket:recv(Socket, Length, Timeout)
+            recv1(Socket, Length, Timeout)
     end.
 
 recv1({ssl, Socket}, Length, Timeout) ->
