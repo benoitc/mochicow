@@ -124,6 +124,7 @@ loop(Req) ->
                  <<"Hello from mochiweb">>}).
 ```
 
+### Usage example
 
 See more usage examples in the `examples` for the usage. For example launch the
 `hello_cowboy` application:
