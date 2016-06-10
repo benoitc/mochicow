@@ -190,40 +190,13 @@ recv(Length, {?MODULE, [_Socket, _Opts, _Method, _RawPath, _Version, _Headers]}=
 %% @doc Receive Length bytes from the client as a binary, with the given
 %%      Timeout in msec.
 recv(Length, Timeout, {?MODULE, [Socket, _Opts, _Method, _RawPath, _Version, _Headers]}) ->
-    case recv1(Socket, Length, Timeout) of
+    case mochicow:recv(Socket, Length, Timeout) of
         {ok, Data} ->
             put(?SAVE_RECV, true),
             Data;
         _ ->
             exit(normal)
     end.
-
-
-recv1(Socket, Length, Timeout) ->
-    case get(mochicow_buffer) of
-        Buffer when is_binary(Buffer) ->
-            Sz = byte_size(Buffer),
-            if
-                Sz > Length ->
-                    Data = binary:part(Buffer, Length),
-                    put(mochicow_buffer, binary:part(Buffer, Sz - Length + 1)),
-                    {ok, Data};
-                Sz =:= Length ->
-                    erlang:erase(mochicow_buffer),
-                    {ok, Buffer};
-                true ->
-                    case mochiweb_socket:recv(Socket, Length - Sz + 1, Timeout) of
-                        {ok, Data} -> 
-                            erlang:erase(mochicow_buffer),
-                            {ok, << Buffer/binary, Data/binary >>};
-                        Error -> 
-                            Error
-                    end
-            end;
-        undefined -> 
-            mochiweb_socket:recv(Socket, Length, Timeout)
-    end.
-
 
 %% @spec body_length(request()) -> undefined | chunked | unknown_transfer_encoding | integer()
 %% @doc  Infer body length from transfer-encoding and content-length headers.

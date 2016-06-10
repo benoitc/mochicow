@@ -2,6 +2,9 @@
 
 -export([parse_transform/2]).
 
+%% @internal
+-export([recv/3]).
+
 %% @private
 parse_transform(AST, _Options) ->
     walk_ast([], AST).
@@ -49,3 +52,33 @@ transform_statement(Stmt) when is_list(Stmt) ->
     [transform_statement(S) || S <- Stmt];
 transform_statement(Stmt) ->
     Stmt.
+
+recv(Socket, Length, Timeout) ->
+    case get(mochicow_buffer) of
+        Buffer when is_binary(Buffer) ->
+            Sz = byte_size(Buffer),
+            if
+                Sz > Length ->
+                    Data = binary:part(Buffer, Length),
+                    put(mochicow_buffer, binary:part(Buffer, Sz - Length + 1)),
+                    {ok, Data};
+                Sz =:= Length ->
+                    erlang:erase(mochicow_buffer),
+                    {ok, Buffer};
+                true ->
+                    case recv1(Socket, Length - Sz + 1, Timeout) of
+                        {ok, Data} -> 
+                            erlang:erase(mochicow_buffer),
+                            {ok, << Buffer/binary, Data/binary >>};
+                        Error -> 
+                            Error
+                    end
+            end;
+        undefined -> 
+            mochiweb_socket:recv(Socket, Length, Timeout)
+    end.
+
+recv1({ssl, Socket}, Length, Timeout) ->
+    ssl:recv(Socket, Length, Timeout);
+recv1(Socket, Length, Timeout) ->
+    gen_tcp:recv(Socket, Length, Timeout).
