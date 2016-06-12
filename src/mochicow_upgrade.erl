@@ -51,7 +51,7 @@ upgrade(Req, Env, _Handler, Opts) ->
     put(mochicow_buffer, Buffer),
 
     MochiReq = mochicow_request:new(MochiSocket,
-                                    [{ranch_ref, Ref}| Opts],
+                                    [{cowboy_env, Env}| Opts],
                                     to_atom(Method),
                                     raw_path(Path, Qs),
                                     Version,
