@@ -54,28 +54,22 @@ transform_statement(Stmt) ->
     Stmt.
 
 recv(Socket, Length, Timeout) ->
-    case get(mochicow_buffer) of
-        Buffer when is_binary(Buffer) ->
-            Sz = byte_size(Buffer),
-            if
-                Sz > Length ->
-                    Data = binary:part(Buffer, Length),
-                    put(mochicow_buffer, binary:part(Buffer, Sz - Length + 1)),
-                    {ok, Data};
-                Sz =:= Length ->
-                    erlang:erase(mochicow_buffer),
-                    {ok, Buffer};
-                true ->
-                    case recv1(Socket, Length - Sz + 1, Timeout) of
-                        {ok, Data} -> 
-                            erlang:erase(mochicow_buffer),
-                            {ok, << Buffer/binary, Data/binary >>};
-                        Error -> 
-                            Error
-                    end
-            end;
-        undefined -> 
-            recv1(Socket, Length, Timeout)
+    case erlang:erase(mochicow_buffer) of
+      undefined -> recv1(Socket, Length, Timeout);
+      <<>> -> recv1(Socket, Length, Timeout);
+      Buffer ->
+        Sz = byte_size(Buffer),
+        if
+          Sz >= Length ->
+            << Data:Sz/binary, Rest/binary >> = Buffer,
+            erlang:put(mochicow_buffer, Rest),
+            {ok, Data};
+          true ->
+            case recv1(Socket, Length-Sz, Timeout) of
+              {ok, Data} -> {ok, << Buffer/binary, Data/binary>>};
+              _Error -> {ok, Buffer}
+            end
+        end
     end.
 
 recv1({ssl, Socket}, Length, Timeout) ->
