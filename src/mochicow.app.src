@@ -7,9 +7,13 @@
 
 {application, mochicow,
  [{description, "mochiweb adapter for cowboy"},
-  {vsn, "0.6.0"},
+  {vsn, "0.6.2"},
   {modules, []},
   {registered, []},
-  {applications, [kernel, stdlib, ranch, cowlib, cowboy, mochiweb]}
+  {applications, [kernel, stdlib, ranch, cowlib, cowboy, mochiweb]},
+
+  {maintainers, ["Benoit Chesneau"]},
+  {licenses, ["MIT"]},
+  {links, [{"Github", "https://github.com/benoitc/mochicow"}]}
 ]}.
 
