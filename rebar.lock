@@ -1,4 +1,4 @@
 [{<<"cowboy">>,{pkg,<<"cowboy">>,<<"1.0.4">>},0},
  {<<"cowlib">>,{pkg,<<"cowlib">>,<<"1.0.2">>},1},
- {<<"mochiweb">>,{pkg,<<"mochiweb">>,<<"2.12.2">>},0},
+ {<<"mochiweb">>,{pkg,<<"mochiweb">>,<<"2.15.0">>},0},
  {<<"ranch">>,{pkg,<<"ranch">>,<<"1.2.1">>},1}].
