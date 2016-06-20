@@ -53,6 +53,12 @@ transform_statement(Stmt) when is_list(Stmt) ->
 transform_statement(Stmt) ->
     Stmt.
 
+recv(Socket, Length, Timeout) when Length =:= 0 ->
+  case erlang:erase(mochicow_buffer) of
+      undefined -> recv1(Socket, Length, Timeout);
+      <<>> -> recv1(Socket, Length, Timeout);
+      Buffer -> Buffer
+  end;
 recv(Socket, Length, Timeout) ->
     case erlang:erase(mochicow_buffer) of
       undefined -> recv1(Socket, Length, Timeout);
@@ -61,7 +67,7 @@ recv(Socket, Length, Timeout) ->
         Sz = byte_size(Buffer),
         if
           Sz >= Length ->
-            << Data:Sz/binary, Rest/binary >> = Buffer,
+            << Data:Length/binary, Rest/binary >> = Buffer,
             erlang:put(mochicow_buffer, Rest),
             {ok, Data};
           true ->
